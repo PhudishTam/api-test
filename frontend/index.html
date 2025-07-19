@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Diabetes Progression Predictor</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            max-width: 600px; 
+            margin: 0 auto; 
+            padding: 20px; 
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .form-group { 
+            margin-bottom: 15px; 
+        }
+        label { 
+            display: block; 
+            margin-bottom: 5px; 
+            font-weight: bold; 
+            color: #333;
+        }
+        input { 
+            width: 100%; 
+            padding: 10px; 
+            border: 1px solid #ddd; 
+            border-radius: 5px; 
+            font-size: 16px;
+        }
+        button { 
+            background-color: #007bff; 
+            color: white; 
+            padding: 12px 30px; 
+            border: none; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            font-size: 16px;
+            width: 100%;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .result { 
+            margin-top: 20px; 
+            padding: 20px; 
+            background-color: #e8f5e8; 
+            border-radius: 5px; 
+            border-left: 4px solid #28a745;
+        }
+        .error {
+            background-color: #f8d7da;
+            border-left: 4px solid #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Diabetes Progression Predictor</h1>
+        <p>Enter the patient data below to predict diabetes progression:</p>
+        
+        <form id="predictionForm">
+            <div class="form-group">
+                <label>Age (normalized):</label>
+                <input type="number" step="0.000001" id="age" placeholder="e.g., 0.038076" required>
+            </div>
+            <div class="form-group">
+                <label>Sex (normalized):</label>
+                <input type="number" step="0.000001" id="sex" placeholder="e.g., 0.050680" required>
+            </div>
+            <div class="form-group">
+                <label>BMI (normalized):</label>
+                <input type="number" step="0.000001" id="bmi" placeholder="e.g., 0.061696" required>
+            </div>
+            <div class="form-group">
+                <label>Blood Pressure (normalized):</label>
+                <input type="number" step="0.000001" id="bp" placeholder="e.g., 0.021872" required>
+            </div>
+            <div class="form-group">
+                <label>S1 (normalized):</label>
+                <input type="number" step="0.000001" id="s1" placeholder="e.g., -0.044223" required>
+            </div>
+            <div class="form-group">
+                <label>S2 (normalized):</label>
+                <input type="number" step="0.000001" id="s2" placeholder="e.g., -0.034821" required>
+            </div>
+            <div class="form-group">
+                <label>S3 (normalized):</label>
+                <input type="number" step="0.000001" id="s3" placeholder="e.g., -0.043401" required>
+            </div>
+            <div class="form-group">
+                <label>S4 (normalized):</label>
+                <input type="number" step="0.000001" id="s4" placeholder="e.g., -0.002592" required>
+            </div>
+            <div class="form-group">
+                <label>S5 (normalized):</label>
+                <input type="number" step="0.000001" id="s5" placeholder="e.g., 0.019908" required>
+            </div>
+            <div class="form-group">
+                <label>S6 (normalized):</label>
+                <input type="number" step="0.000001" id="s6" placeholder="e.g., -0.017646" required>
+            </div>
+            
+            <button type="submit">🔮 Predict Progression</button>
+        </form>
+
+        <div id="result" style="display: none;"></div>
+    </div>
+
+    <script>
+        document.getElementById('predictionForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const button = document.querySelector('button');
+            button.textContent = 'Predicting...';
+            button.disabled = true;
+            
+            const data = {
+                age: parseFloat(document.getElementById('age').value),
+                sex: parseFloat(document.getElementById('sex').value),
+                bmi: parseFloat(document.getElementById('bmi').value),
+                bp: parseFloat(document.getElementById('bp').value),
+                s1: parseFloat(document.getElementById('s1').value),
+                s2: parseFloat(document.getElementById('s2').value),
+                s3: parseFloat(document.getElementById('s3').value),
+                s4: parseFloat(document.getElementById('s4').value),
+                s5: parseFloat(document.getElementById('s5').value),
+                s6: parseFloat(document.getElementById('s6').value)
+            };
+
+            try {
+                const response = await fetch('http://localhost:8000/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                document.getElementById('result').innerHTML = `
+                    <h3>📊 Prediction Result:</h3>
+                    <p><strong>Progression Score:</strong> ${result.predicted_progression_score}</p>
+                    <p><strong>Interpretation:</strong> ${result.interpretation}</p>
+                `;
+                document.getElementById('result').className = 'result';
+                document.getElementById('result').style.display = 'block';
+            } catch (error) {
+                document.getElementById('result').innerHTML = `
+                    <h3>Error:</h3>
+                    <p>${error.message}</p>
+                `;
+                document.getElementById('result').className = 'result error';
+                document.getElementById('result').style.display = 'block';
+            } finally {
+                button.textContent = 'Predict Progression';
+                button.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

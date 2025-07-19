@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import pickle
 import numpy as np
@@ -39,8 +40,16 @@ app = FastAPI(
     version="1.0.0"
 )
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allows all origins
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 # Load the trained model
-model_path = os.path.join("models", "diabetes_model.pkl")
+model_path = os.path.join("backend/models", "diabetes_model.pkl")
 with open(model_path, 'rb') as f:
     model = pickle.load(f)
 
