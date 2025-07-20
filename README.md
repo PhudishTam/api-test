@@ -23,4 +23,4 @@ Please note that
 
 3. **Access the Application**
 - Open a browser and navigate to [http://localhost:5000](http://localhost:5000).
-- Put your number will predict 
+- Put your number will predict the result
