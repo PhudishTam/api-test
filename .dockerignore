@@ -1,0 +1,16 @@
+# ---- python & editors ----
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.env
+.venv/
+*.sqlite
+# ---- git & docs ----
+.git
+.gitignore
+README.md
+# ---- build artefacts ----
+dist/
+build/
+*.pickle
